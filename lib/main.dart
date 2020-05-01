@@ -45,21 +45,22 @@ class _MyHomePageState extends State<MyHomePage> {
 
 
   void _startCountdown(var length) {
-
     if (countdownTimer == null) {
       countdownTimer = new CountdownTimer(
         new Duration(milliseconds: length + 1000),
         new Duration(seconds: 1),
       );
+      _runCountdown();
     } else if (countdownTimer.isRunning == false) {
       countdownTimer = new CountdownTimer(
         new Duration(milliseconds: length + 1000),
         new Duration(seconds: 1),
       );
-    } else {
-      print("Countdown already running");
+      _runCountdown();
     }
+  }
 
+  void _runCountdown() {
     var sub = countdownTimer.listen(null);
 
     sub.onData((duration) {
@@ -75,7 +76,6 @@ class _MyHomePageState extends State<MyHomePage> {
           backgroundColour = Colors.white;
           textColour = Colors.black; 
         }
-
       });
 
       sub.onDone(() {
@@ -110,7 +110,8 @@ class _MyHomePageState extends State<MyHomePage> {
               Text(
                 'Time Remaining:',
                 style: new TextStyle(
-                  color: textColour
+                  color: textColour,
+                  fontSize: 20
                 )
               ),
               StreamBuilder(
@@ -126,7 +127,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       _countdownText = "$_countdownTime:00";
                     } else if (_state == true) {
                       var now = DateTime.now().toUtc().millisecondsSinceEpoch;
-                      _secondsSinceEpoch = DateTime.now().add(Duration(minutes: _countdownTime)).millisecondsSinceEpoch;
+                      _secondsSinceEpoch = DateTime.now().toUtc().add(Duration(minutes: _countdownTime)).millisecondsSinceEpoch;
                       var diff =  _secondsSinceEpoch - now;
                       _startCountdown(diff);
                     }
