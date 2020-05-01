@@ -42,10 +42,20 @@ class _MyHomePageState extends State<MyHomePage> {
   String _countdownText = "0:00";
 
   void _startCountdown(var length) {
-    countdownTimer = new CountdownTimer(
-      new Duration(milliseconds: length + 1000),
-      new Duration(seconds: 1),
-    );
+
+    if (countdownTimer == null) {
+      countdownTimer = new CountdownTimer(
+        new Duration(milliseconds: length + 1000),
+        new Duration(seconds: 1),
+      );
+    } else if (countdownTimer.isRunning == false) {
+      countdownTimer = new CountdownTimer(
+        new Duration(milliseconds: length + 1000),
+        new Duration(seconds: 1),
+      );
+    } else {
+      print("Countdown already running");
+    }
 
     var sub = countdownTimer.listen(null);
 
@@ -96,7 +106,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   if (_state == false) {
                     _stopCountdown();
                     _countdownText = "$_countdownTime:00";
-                  } else if (_state == true && countdownTimer != null && countdownTimer.isRunning == false) {
+                  } else if (_state == true) {
                     var now = DateTime.now().toUtc().millisecondsSinceEpoch;
                     _secondsSinceEpoch = DateTime.now().add(Duration(minutes: _countdownTime)).millisecondsSinceEpoch;
                     var diff =  _secondsSinceEpoch - now;
