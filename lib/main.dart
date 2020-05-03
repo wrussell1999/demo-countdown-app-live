@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_database/firebase_database.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:quiver/async.dart';
 
 
@@ -33,7 +33,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final database = FirebaseDatabase.instance.reference().child('countdown');
+  final database = Firestore.instance.collection('countdown');
   
   int _countdownTime = 1;
   bool _state = false;
@@ -115,20 +115,18 @@ class _MyHomePageState extends State<MyHomePage> {
                 )
               ),
               StreamBuilder(
-                stream: database.onValue,
-                builder: (context, snap) {
-                  if (snap.hasData && !snap.hasError && snap.data.snapshot.value != null) {
-                    Map data = snap.data.snapshot.value;
+                stream: database.document('1').snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData && !snapshot.hasError && snapshot.data.data.values != null) {
+                    Map data = snapshot.data.data;
                     _state = data['start'];
                     _countdownTime = data['time'];
-                    _secondsSinceEpoch = data['timestamp'];
+                    _secondsSinceEpoch = data['epoch'];
                     if (_state == false) {
                       _stopCountdown();
                       _countdownText = "$_countdownTime:00";
                     } else if (_state == true) {
-                      var now = DateTime.now().toUtc().millisecondsSinceEpoch;
-                      _secondsSinceEpoch = DateTime.now().toUtc().add(Duration(minutes: _countdownTime)).millisecondsSinceEpoch;
-                      var diff =  _secondsSinceEpoch - now;
+                      var diff =  _secondsSinceEpoch - DateTime.now().toUtc().millisecondsSinceEpoch;
                       _startCountdown(diff);
                     }
                     return Text("$_countdownText",
